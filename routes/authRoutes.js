@@ -90,7 +90,7 @@ router.post('/logout', (req, res) => {
 // Get all users (Admin only)
 router.get('/all', authenticate, checkAdminRole, async (req, res) => {
   try {
-    const users = await User.find().select('-password'); // Exclude password from the response
+    const users = await User.find().select('-password'); 
     res.status(200).json(users);
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -99,10 +99,10 @@ router.get('/all', authenticate, checkAdminRole, async (req, res) => {
 });
 
 
-// Get a specific user (Admin only)
-router.get('/:id', authenticate, checkAdminRole, async (req, res) => {
+// Get a specific user by email (Admin only)
+router.get('/by-email/:email', authenticate, checkAdminRole, async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
+    const user = await User.findOne({ email: req.params.email }).select('-password');
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }

@@ -19,7 +19,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(cookieParser());
-app.use(helmet()); // Adds security-related HTTP headers
+app.use(helmet()); 
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
@@ -36,7 +36,7 @@ import contactRoutes from './routes/contactRoutes.js';
 import loginRoutes from './routes/loginRoutes.js'; 
 
 app.use('/user', authRoutes);
-app.use('/login', loginRoutes); // Changed the route prefix to avoid conflict with authRoutes
+app.use('/login', loginRoutes);
 app.use('/contact', contactRoutes);
 
 // Custom error handling middleware

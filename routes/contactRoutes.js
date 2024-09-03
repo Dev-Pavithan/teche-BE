@@ -41,15 +41,30 @@ router.post('/', validateContact, async (req, res) => {
 });
 
 // Get all contact messages (Admin only)
-router.get('/', authenticate, checkAdminRole, async (req, res) => {
+router.get('/all', authenticate, checkAdminRole, async (req, res) => {
   try {
-    const contacts = await Contact.find();
+    const contacts = await Contact.find().sort({ _id: -1 }); // Sort by latest message first
     res.status(200).json(contacts);
   } catch (error) {
-    console.error('Error fetching contact messages:', error);
+    console.error('Error fetching contacts:', error);
     res.status(500).json({ error: 'Server error. Please try again later.' });
   }
 });
+
+// Delete a contact message (Admin only)
+router.delete('/:id', authenticate, checkAdminRole, async (req, res) => {
+  try {
+    const contact = await Contact.findByIdAndDelete(req.params.id);
+    if (!contact) {
+      return res.status(404).json({ error: 'Contact not found.' });
+    }
+    res.status(200).json({ message: 'Contact deleted successfully!' });
+  } catch (error) {
+    console.error('Error deleting contact:', error);
+    res.status(500).json({ error: 'Server error. Please try again later.' });
+  }
+});
+
 
 // Get a specific contact message by ID (Admin only)
 router.get('/:id', authenticate, checkAdminRole, async (req, res) => {
