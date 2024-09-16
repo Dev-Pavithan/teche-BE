@@ -1,6 +1,4 @@
-// middleware/errorHandler.js
 
-// Custom error handling middleware
 const errorHandler = (err, req, res, next) => {
     // Log the error stack trace for debugging
     console.error(err.stack);

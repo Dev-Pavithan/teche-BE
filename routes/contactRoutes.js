@@ -1,9 +1,9 @@
-// routes/contactRoutes.js
 import express from 'express';
 import Contact from '../models/Contact.js';
 import { body, validationResult } from 'express-validator';
-import authenticate from '../middleware/authenticate.js'; // Middleware for authentication
-import checkAdminRole from '../middleware/checkAdminRole.js'; // Middleware to check admin role
+import authenticate from '../middleware/authenticate.js'; 
+import checkAdminRole from '../middleware/checkAdminRole.js'; 
+import sendMail from '../utils/sendMail.js';
 
 const router = express.Router();
 
@@ -25,6 +25,7 @@ router.post('/', validateContact, async (req, res) => {
   const { name, email, phone, message } = req.body;
 
   try {
+    // Create and save new contact message
     const newContact = new Contact({
       name,
       email,
@@ -33,6 +34,21 @@ router.post('/', validateContact, async (req, res) => {
     });
 
     await newContact.save();
+
+    // Send email to the EMAIL_USER to notify about the new contact message
+    const emailSubject = 'New Contact Message Submitted';
+    const emailText = `You have received a new contact message from ${name} (${email}).\n\nPhone: ${phone}\n\nMessage: ${message}`;
+    const emailHtml = `
+      <h1>New Contact Message</h1>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Phone:</strong> ${phone}</p>
+      <p><strong>Message:</strong><br/>${message}</p>
+    `;
+
+    // Send email to the EMAIL_USER
+    await sendMail(process.env.EMAIL_USER, emailSubject, emailText, emailHtml);
+
     res.status(201).json({ message: 'Contact message submitted successfully!' });
   } catch (error) {
     console.error('Error submitting contact message:', error);
