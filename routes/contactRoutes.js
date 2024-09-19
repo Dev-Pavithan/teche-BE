@@ -59,7 +59,7 @@ router.post('/', validateContact, async (req, res) => {
 // Get all contact messages (Admin only)
 router.get('/all', authenticate, checkAdminRole, async (req, res) => {
   try {
-    const contacts = await Contact.find().sort({ _id: -1 }); // Sort by latest message first
+    const contacts = await Contact.find().sort({ _id: -1 }); 
     res.status(200).json(contacts);
   } catch (error) {
     console.error('Error fetching contacts:', error);

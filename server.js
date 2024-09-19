@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import errorHandler from './middleware/errorHandler.js';
+import paymentRoutes from './routes/paymentRoutes.js'; 
 
 dotenv.config();
 
@@ -21,18 +22,14 @@ app.use(cors({
 app.use(cookieParser());
 app.use(helmet());
 
-
-
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 30000,
 })
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
-
-
+.then(() => console.log('MongoDB Connected'))
+.catch(err => console.error('MongoDB connection error:', err));
 
 // Import and use your routes
 import authRoutes from './routes/authRoutes.js';
@@ -40,15 +37,11 @@ import contactRoutes from './routes/contactRoutes.js';
 import loginRoutes from './routes/loginRoutes.js';
 import packageRoutes from './routes/packageRoutes.js';
 
-
-
 app.use('/user', authRoutes);
 app.use('/login', loginRoutes);
 app.use('/contact', contactRoutes);
 app.use('/api/packages', packageRoutes);
-
-
-
+app.use('/api/payments', paymentRoutes); 
 
 // Custom error handling middleware
 app.use(errorHandler);

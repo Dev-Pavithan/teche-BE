@@ -29,9 +29,9 @@ router.get('/:id', async (req, res) => {
 
 // POST (create) a new package
 router.post('/', async (req, res) => {
-    const { name, version, description } = req.body;
+    const { name, version, description, price } = req.body;
     try {
-        const newPackage = new Package({ name, version, description });
+        const newPackage = new Package({ name, version, description, price });
         await newPackage.save();
         res.status(201).json(newPackage);
     } catch (error) {
@@ -42,13 +42,13 @@ router.post('/', async (req, res) => {
 // PUT (update) an existing package by ID
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { name, version, description } = req.body;
+    const { name, version, description, price } = req.body;
 
     try {
         const updatedPackage = await Package.findByIdAndUpdate(
             id,
-            { name, version, description, updatedAt: Date.now() },
-            { new: true } // Ensures the updated document is returned
+            { name, version, description, price, updatedAt: Date.now() },
+            { new: true }
         );
         if (!updatedPackage) {
             return res.status(404).json({ message: 'Package not found' });
