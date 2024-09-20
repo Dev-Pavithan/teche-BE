@@ -14,6 +14,7 @@ const paymentSchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   currency: { type: String, required: true },
   clientSecret: { type: String, required: true },
+  cardholderName: { type: String, required: true }, 
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -22,10 +23,15 @@ const Payment = mongoose.model('Payment', paymentSchema);
 
 // POST route to create a new payment intent and store it in MongoDB
 router.post('/payment-intent', async (req, res) => {
-  const { amount } = req.body;
+  const { amount, cardholderName } = req.body;
 
+  // Validate input
   if (!amount || amount <= 0) {
     return res.status(400).json({ error: 'Invalid amount' });
+  }
+
+  if (!cardholderName || typeof cardholderName !== 'string' || cardholderName.trim().length === 0) {
+    return res.status(400).json({ error: 'Cardholder name is required' });
   }
 
   try {
@@ -41,7 +47,8 @@ router.post('/payment-intent', async (req, res) => {
       paymentIntentId: paymentIntent.id,
       amount,
       currency: 'usd',
-      clientSecret: paymentIntent.client_secret
+      clientSecret: paymentIntent.client_secret,
+      cardholderName: cardholderName.trim() // Ensure we trim any whitespace
     });
 
     await newPayment.save();
