@@ -5,7 +5,6 @@ import mongoose from 'mongoose';
 
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
 const router = express.Router();
 
 // MongoDB Schema for Payment Intent
@@ -14,7 +13,7 @@ const paymentSchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   currency: { type: String, required: true },
   clientSecret: { type: String, required: true },
-  cardholderName: { type: String, required: true }, 
+  cardholderName: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -48,12 +47,12 @@ router.post('/payment-intent', async (req, res) => {
       amount,
       currency: 'usd',
       clientSecret: paymentIntent.client_secret,
-      cardholderName: cardholderName.trim() // Ensure we trim any whitespace
+      cardholderName: cardholderName.trim(),
     });
 
     await newPayment.save();
 
-    res.status(200).json({ clientSecret: paymentIntent.client_secret });
+    res.status(201).json({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
     console.error('Error creating payment intent:', error);
     res.status(500).json({ error: 'Error creating payment intent', details: error.message });
@@ -65,7 +64,6 @@ router.get('/payment-intent/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Find the payment intent in MongoDB by ID
     const payment = await Payment.findOne({ paymentIntentId: id });
 
     if (!payment) {
@@ -82,13 +80,27 @@ router.get('/payment-intent/:id', async (req, res) => {
 // GET route to retrieve all payment intents
 router.get('/payment-intents', async (req, res) => {
   try {
-    // Fetch all payment intents from MongoDB
-    const payments = await Payment.find();
-
+    const payments = await Payment.find().sort({ createdAt: -1 });
     res.status(200).json(payments);
   } catch (error) {
     console.error('Error retrieving payment intents:', error);
     res.status(500).json({ error: 'Error retrieving payment intents', details: error.message });
+  }
+});
+
+// GET route to retrieve the last transaction
+router.get('/last-transaction', async (req, res) => {
+  try {
+    const lastTransaction = await Payment.findOne().sort({ createdAt: -1 }); // Get the most recent transaction
+
+    if (!lastTransaction) {
+      return res.status(404).json({ error: 'No transactions found' });
+    }
+
+    res.status(200).json(lastTransaction);
+  } catch (error) {
+    console.error('Error retrieving last transaction:', error);
+    res.status(500).json({ error: 'Error retrieving last transaction', details: error.message });
   }
 });
 
